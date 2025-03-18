@@ -1,5 +1,29 @@
 @import 'tailwindcss';
 
 body {
-  @apply bg-black;
+  @apply flex flex-col justify-center items-center max-h-dvh p-10 bg-black;
+}
+
+h1 {
+  @apply mb-12 text-4xl font-extrabold text-white text-center;
+}
+
+.field {
+  height: calc(100% - 40px);
+}
+
+.field__row {
+  @apply flex;
+}
+
+.field__cell {
+  @apply m-2 w-40 h-40 bg-emerald-200 bg-[url(hole.png)] bg-no-repeat bg-contain bg-[center_bottom];
+}
+
+.field__cell.active {
+  @apply bg-[url(mole_neutral.png),_url(hole.png)] bg-[position:center_bottom_6px,_center_bottom] bg-[size:80px,_contain];
+}
+
+.timer {
+  @apply text-white;
 }
