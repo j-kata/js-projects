@@ -10,6 +10,7 @@ const STATES = {
 };
 
 let state = STATES.OFF;
+let currentScore = 0;
 
 const field = document.getElementById('field');
 field.append(createField());
@@ -18,6 +19,7 @@ const actionButton = document.getElementById('start');
 actionButton.addEventListener('click', startGame);
 
 const timer = document.getElementById('timer');
+const score = document.getElementById('score');
 
 function createField(rows = DEFAULT_SIZE, cols = DEFAULT_SIZE) {
   const fragment = document.createDocumentFragment();
@@ -49,6 +51,8 @@ function startGame() {
   state = STATES.ON;
   actionButton.classList.add('hidden');
   timer.classList.remove('hidden');
+  score.classList.remove('hidden');
+  field.addEventListener('click', updateScore);
   updateTimer();
   updateMole();
 }
@@ -88,7 +92,7 @@ function updateMole(
     if (state == STATES.ON) {
       let current = document.querySelector('.field__cell.active');
       if (current) {
-        current.classList.remove('active');
+        current.classList.remove('active', 'blocked');
       }
       const rowIndex = Math.floor(Math.random() * rows);
       const colIndex = Math.floor(Math.random() * cols);
@@ -101,4 +105,16 @@ function updateMole(
       clearInterval(timerId);
     }
   }, pause);
+}
+
+function updateScore(event) {
+  const cell = event.target;
+  if (
+    cell.classList.contains('active') &&
+    !cell.classList.contains('blocked')
+  ) {
+    currentScore += 1;
+    score.textContent = `Score: ${currentScore}`;
+    cell.classList.add('blocked');
+  }
 }
