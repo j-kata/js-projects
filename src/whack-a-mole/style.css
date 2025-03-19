@@ -1,15 +1,7 @@
 @import 'tailwindcss';
 
-body {
-  @apply flex flex-col justify-center items-center max-h-dvh p-10 bg-black;
-}
-
-h1 {
-  @apply mb-12 text-4xl font-extrabold text-white text-center;
-}
-
-.field {
-  height: calc(100% - 40px);
+.button {
+  @apply inline-flex justify-center items-center h-10 py-2 px-4 bg-white text-black font-semibold rounded-md cursor-pointer;
 }
 
 .field__row {
@@ -17,18 +9,13 @@ h1 {
 }
 
 .field__cell {
-  @apply m-2 w-40 h-40 bg-emerald-200 bg-[url(hole.png)] bg-no-repeat bg-contain bg-[center_bottom];
+  @apply m-2 w-40 h-40 bg-green-400 bg-[url(./assets/hole.png)] bg-no-repeat bg-contain bg-[center_bottom];
 }
 
 .field__cell.active {
-  @apply bg-[url(mole_neutral.png),_url(hole.png)] bg-[position:center_bottom_6px,_center_bottom] bg-[size:80px,_contain] hover:cursor-[url(hammer.svg),_auto];
+  @apply bg-[url(./assets/mole_neutral.png),_url(./assets/hole.png)] bg-[position:center_bottom_6px,_center_bottom] bg-[size:80px,_contain] hover:cursor-[url(./assets/hammer.svg),_auto];
 }
 
 .field__cell.blocked {
-  @apply bg-[url(mole_angry.png),_url(hole.png)] bg-[position:center_bottom_6px,_center_bottom] bg-[size:80px,_contain] hover:cursor-[url(hammer_drop.svg),_auto];
-}
-
-.timer,
-.score {
-  @apply text-white;
+  @apply bg-[url(./assets/mole_angry.png),_url(./assets/hole.png)] bg-[position:center_bottom_6px,_center_bottom] bg-[size:80px,_contain] hover:cursor-[url(./assets/hammer_drop.svg),_auto];
 }

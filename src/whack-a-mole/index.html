@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Whack a mole!</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body
+    class="relative flex flex-col justify-center items-center p-5 text-white bg-black"
+  >
+    <h1 class="mb-5 text-4xl font-extrabold text-center">Whack a mole</h1>
+    <div id="score" class="absolute top-5 right-7">Score: 0</div>
+    <div class="flex justify-center items-center h-12 mb-5">
+      <button id="start" class="button">Start</button>
+      <div id="timer"></div>
+    </div>
+    <div id="field" class="field"></div>
+    <script type="module" src="main.js"></script>
+  </body>
+</html>
