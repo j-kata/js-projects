@@ -19,7 +19,7 @@ export const Brick = {
       height,
       level,
       hitsRemaining: level + 1,
-      color: getColor(level),
+      color: COLORS[level],
     };
   },
   draw(ctx, brick) {
@@ -30,7 +30,3 @@ export const Brick = {
     return { ...brick, y: brick.y + distance };
   },
 };
-
-function getColor(level) {
-  return COLORS[level] || '#ccc';
-}

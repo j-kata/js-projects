@@ -1,4 +1,5 @@
 import { Brick, BRICK_WIDTH, BRICK_HEIGHT, LEVEL } from './brick';
+import { Paddle } from './paddle';
 
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
@@ -15,10 +16,14 @@ const OFFSET = (CANVAS_WIDTH - BRICK_MAX * SPACED_BRICK_WIDTH) / 2;
 
 const state = {
   bricks: [],
+  paddle: Paddle.create(CANVAS_WIDTH, CANVAS_HEIGHT),
   score: 0,
 };
 
 let brickRowIntervalId = null;
+const keysPressed = {};
+const keyDownHandler = handleKey.bind(this, true);
+const keyUpHandler = handleKey.bind(this, false);
 
 startGame();
 
@@ -26,11 +31,15 @@ function startGame() {
   state.score = 0;
   state.bricks = initBricks();
   brickRowIntervalId = setInterval(addTopBrickRow, 1500);
+  window.addEventListener('keydown', keyDownHandler);
+  window.addEventListener('keyup', keyUpHandler);
 
   requestAnimationFrame(gameLoop);
 }
 
 function stopGame() {
+  window.removeEventListener('keydown', keyDownHandler);
+  window.removeEventListener('keyup', keyUpHandler);
   clearInterval(brickRowIntervalId);
 }
 
@@ -64,7 +73,7 @@ function createBrickRow(currentY, level) {
 function addTopBrickRow() {
   if (canAddBrickRow()) {
     stopGame();
-    alert('Game over!');
+    // alert('Game over!');
     return;
   }
   const topRow = createBrickRow(OFFSET, LEVEL.STRONG);
@@ -80,8 +89,15 @@ function moveDownBrickRow() {
 
 function canAddBrickRow() {
   return state.bricks.find(
-    (b) => b.y + 2 * SPACED_BRICK_HEIGHT > CANVAS_HEIGHT
+    (b) => b.y + 2 * SPACED_BRICK_HEIGHT > state.paddle.y
   );
+}
+
+function handleKey(pressed, event) {
+  const acceptedCodes = ['ArrowLeft', 'ArrowRight'];
+  if (!acceptedCodes.includes(event.code)) return;
+
+  keysPressed[event.code] = pressed;
 }
 
 function gameLoop() {
@@ -90,13 +106,25 @@ function gameLoop() {
   requestAnimationFrame(gameLoop);
 }
 
-function update() {}
+function update() {
+  if (keysPressed['ArrowLeft']) {
+    state.paddle = Paddle.moveLeft(state.paddle);
+  }
+  if (keysPressed['ArrowRight']) {
+    state.paddle = Paddle.moveRight(state.paddle);
+  }
+}
 
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   drawBricks(ctx);
+  drawPaddle(ctx);
 }
 
 function drawBricks(ctx) {
   state.bricks.forEach((brick) => Brick.draw(ctx, brick));
+}
+
+function drawPaddle(ctx) {
+  Paddle.draw(ctx, state.paddle);
 }
