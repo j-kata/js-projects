@@ -7,24 +7,27 @@ const STEP = 5;
 
 export const Paddle = {
   create(canvasWidth, canvasHeight) {
+    const middleX = (canvasWidth - PADDLE_WIDTH) / 2;
+    const middleY = canvasHeight - PADDLE_HEIGHT - 5;
     return {
-      x: (canvasWidth - PADDLE_WIDTH) / 2,
-      y: canvasHeight - PADDLE_HEIGHT - 5,
-      canMoveLeft() {
-        return this.x > STEP;
-      },
-      canMoveRight() {
-        return this.x + PADDLE_WIDTH < canvasWidth - STEP;
-      },
+      x: middleX,
+      y: middleY,
+      width: PADDLE_WIDTH,
+      height: PADDLE_HEIGHT,
     };
   },
-
-  moveLeft(paddle) {
-    const x = paddle.canMoveLeft() ? paddle.x - STEP : paddle.x;
+  canMoveLeft(paddle, x) {
+    return paddle.x > x;
+  },
+  canMoveRight(paddle, x) {
+    return paddle.x + paddle.width < x;
+  },
+  moveLeft(paddle, border) {
+    const x = this.canMoveLeft(paddle, border) ? paddle.x - STEP : paddle.x;
     return { ...paddle, x };
   },
-  moveRight(paddle) {
-    const x = paddle.canMoveRight() ? paddle.x + STEP : paddle.x;
+  moveRight(paddle, border) {
+    const x = this.canMoveRight(paddle, border) ? paddle.x + STEP : paddle.x;
     return { ...paddle, x };
   },
   draw(ctx, paddle) {
@@ -33,7 +36,7 @@ export const Paddle = {
     ctx.strokeStyle = STROKE_COLOR;
     ctx.fillStyle = FILL_COLOR;
     ctx.beginPath();
-    ctx.roundRect(x, y, PADDLE_WIDTH, PADDLE_HEIGHT, [RADIUS]);
+    ctx.roundRect(x, y, paddle.width, paddle.height, [RADIUS]);
     ctx.fill();
     ctx.stroke();
     ctx.restore();

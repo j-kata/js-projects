@@ -1,3 +1,5 @@
+import { Ball } from './ball';
+import { Bounce } from './bounce';
 import { Brick, BRICK_WIDTH, BRICK_HEIGHT, LEVEL } from './brick';
 import { Paddle } from './paddle';
 
@@ -17,6 +19,12 @@ const OFFSET = (CANVAS_WIDTH - BRICK_MAX * SPACED_BRICK_WIDTH) / 2;
 const state = {
   bricks: [],
   paddle: Paddle.create(CANVAS_WIDTH, CANVAS_HEIGHT),
+  ball: Ball.create(
+    CANVAS_WIDTH / 2,
+    CANVAS_HEIGHT / 2,
+    -2 + Math.random() * 2,
+    1
+  ),
   score: 0,
 };
 
@@ -30,10 +38,9 @@ startGame();
 function startGame() {
   state.score = 0;
   state.bricks = initBricks();
-  brickRowIntervalId = setInterval(addTopBrickRow, 1500);
   window.addEventListener('keydown', keyDownHandler);
   window.addEventListener('keyup', keyUpHandler);
-
+  // brickRowIntervalId = setInterval(addTopBrickRow, 1500);
   requestAnimationFrame(gameLoop);
 }
 
@@ -41,6 +48,30 @@ function stopGame() {
   window.removeEventListener('keydown', keyDownHandler);
   window.removeEventListener('keyup', keyUpHandler);
   clearInterval(brickRowIntervalId);
+}
+
+function gameLoop() {
+  update();
+  draw();
+  requestAnimationFrame(gameLoop);
+}
+
+function update() {
+  if (keysPressed['ArrowLeft']) {
+    state.paddle = Paddle.moveLeft(state.paddle, 0);
+  }
+  if (keysPressed['ArrowRight']) {
+    state.paddle = Paddle.moveRight(state.paddle, CANVAS_WIDTH);
+  }
+  checkBallCollisions();
+  state.ball = Ball.move(state.ball);
+}
+
+function draw() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  state.bricks.forEach((brick) => Brick.draw(ctx, brick));
+  Ball.draw(ctx, state.ball);
+  Paddle.draw(ctx, state.paddle);
 }
 
 function initBricks(rowCount = 4) {
@@ -52,7 +83,6 @@ function initBricks(rowCount = 4) {
     bricks.push(...topRow);
     currentY += SPACED_BRICK_HEIGHT;
   }
-
   return bricks;
 }
 
@@ -93,38 +123,20 @@ function canAddBrickRow() {
   );
 }
 
+function checkBallCollisions() {
+  let ball = state.ball;
+  ball = Bounce.ofWall(ball, CANVAS_WIDTH, CANVAS_HEIGHT);
+  ball = Bounce.ofPaddle(ball, state.paddle);
+  const { ball: newBall, hit } = Bounce.ofBrick(ball, state.bricks);
+  if (hit) {
+    state.bricks = state.bricks.filter((b) => b !== hit);
+  }
+  state.ball = newBall;
+}
+
 function handleKey(pressed, event) {
   const acceptedCodes = ['ArrowLeft', 'ArrowRight'];
   if (!acceptedCodes.includes(event.code)) return;
 
   keysPressed[event.code] = pressed;
-}
-
-function gameLoop() {
-  update();
-  draw();
-  requestAnimationFrame(gameLoop);
-}
-
-function update() {
-  if (keysPressed['ArrowLeft']) {
-    state.paddle = Paddle.moveLeft(state.paddle);
-  }
-  if (keysPressed['ArrowRight']) {
-    state.paddle = Paddle.moveRight(state.paddle);
-  }
-}
-
-function draw() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  drawBricks(ctx);
-  drawPaddle(ctx);
-}
-
-function drawBricks(ctx) {
-  state.bricks.forEach((brick) => Brick.draw(ctx, brick));
-}
-
-function drawPaddle(ctx) {
-  Paddle.draw(ctx, state.paddle);
 }
