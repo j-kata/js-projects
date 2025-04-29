@@ -1,56 +1,41 @@
 export const Collision = {
-  hitWallLeft(ball, x) {
-    return ball.x - ball.radius < x;
+  hitWallLeft(ball, wallX) {
+    return ball.x - ball.radius < wallX;
   },
-  hitWallRight(ball, x) {
-    return ball.x + ball.radius > x;
+  hitWallRight(ball, wallX) {
+    return ball.x + ball.radius > wallX;
   },
-  hitWallTop(ball, y) {
-    return ball.y - ball.radius < y;
+  hitWallTop(ball, wallY) {
+    return ball.y - ball.radius < wallY;
   },
-  hitWallBottom(ball, y) {
-    return ball.y + ball.radius > y;
+  hitWallBottom(ball, wallY) {
+    return ball.y + ball.radius > wallY;
   },
-  insideObjectVertically(ball, obj) {
-    return (
-      ball.y - ball.radius > obj.y && ball.y + ball.radius < obj.y + obj.height
-    );
-  },
-  insideObjectHorizontally(ball, obj) {
-    return (
-      ball.x - ball.radius > obj.x && ball.x + ball.radius < obj.x + obj.width
-    );
+  intersectObjectSide(ball, closestX, closestY) {
+    const distanceX = ball.x - closestX;
+    const distanceY = ball.y - closestY;
+    return distanceX ** 2 + distanceY ** 2 < ball.radius ** 2;
   },
   hitObjectLeft(ball, obj) {
-    const ballLeft = ball.x - ball.radius;
-    return (
-      obj.x < ballLeft &&
-      ballLeft < obj.x + obj.width &&
-      this.insideObjectVertically(ball, obj)
-    );
+    const closestX = obj.x + obj.width;
+    const closestY = clamp(ball.y, obj.y, obj.y + obj.height);
+    return Collision.intersectObjectSide(ball, closestX, closestY);
   },
   hitObjectRight(ball, obj) {
-    const ballRight = ball.x + ball.radius;
-    return (
-      obj.x < ballRight &&
-      ballRight < obj.x + obj.width &&
-      this.insideObjectVertically(ball, obj)
-    );
+    const closestX = obj.x;
+    const closestY = clamp(ball.y, obj.y, obj.y + obj.height);
+    return Collision.intersectObjectSide(ball, closestX, closestY);
   },
   hitObjectTop(ball, obj) {
-    const ballTop = ball.y - ball.radius;
-    return (
-      obj.y < ballTop &&
-      ballTop < obj.y + obj.height &&
-      this.insideObjectHorizontally(ball, obj)
-    );
+    const closestX = clamp(ball.x, obj.x, obj.x + obj.width);
+    const closestY = obj.y + obj.height;
+    return Collision.intersectObjectSide(ball, closestX, closestY);
   },
   hitObjectBottom(ball, obj) {
-    const ballBottom = ball.y + ball.radius;
-    return (
-      obj.y < ballBottom &&
-      ballBottom < obj.y + obj.height &&
-      this.insideObjectHorizontally(ball, obj)
-    );
+    const closestX = clamp(ball.x, obj.x, obj.x + obj.width);
+    const closestY = obj.y;
+    return Collision.intersectObjectSide(ball, closestX, closestY);
   },
 };
+
+const clamp = (num, val1, val2) => Math.min(Math.max(num, val1), val2);

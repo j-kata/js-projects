@@ -16,19 +16,26 @@ export const Paddle = {
       height: PADDLE_HEIGHT,
     };
   },
-  canMoveLeft(paddle, x) {
-    return paddle.x > x;
+  canMoveLeft(paddle, minX) {
+    return paddle.x > minX;
   },
-  canMoveRight(paddle, x) {
-    return paddle.x + paddle.width < x;
+  canMoveRight(paddle, maxX) {
+    return paddle.x + paddle.width < maxX;
   },
-  moveLeft(paddle, border) {
-    const x = this.canMoveLeft(paddle, border) ? paddle.x - STEP : paddle.x;
-    return { ...paddle, x };
+  moveLeft(paddle, canvasMin) {
+    if (!Paddle.canMoveLeft(paddle, canvasMin)) return paddle;
+
+    const distance = paddle.x - canvasMin;
+    return { ...paddle, x: paddle.x - Paddle.nextStep(distance) };
   },
-  moveRight(paddle, border) {
-    const x = this.canMoveRight(paddle, border) ? paddle.x + STEP : paddle.x;
-    return { ...paddle, x };
+  moveRight(paddle, canvasMax) {
+    if (!Paddle.canMoveRight(paddle, canvasMax)) return paddle;
+
+    const distance = canvasMax - paddle.x - paddle.width;
+    return { ...paddle, x: paddle.x + Paddle.nextStep(distance) };
+  },
+  nextStep(distToBorder) {
+    return distToBorder < STEP ? distToBorder : STEP;
   },
   draw(ctx, paddle) {
     const { x, y } = paddle;

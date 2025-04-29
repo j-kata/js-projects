@@ -2,7 +2,7 @@ import { Ball } from './ball';
 import { Collision } from './collision';
 
 export const Bounce = {
-  ofWall(ball, width, height) {
+  ofWall(ball, width, _height) {
     let newBall = ball;
     if (Collision.hitWallLeft(ball, 0) || Collision.hitWallRight(ball, width)) {
       newBall = Ball.bounceHorizontal(newBall);
@@ -13,8 +13,6 @@ export const Bounce = {
     return newBall;
   },
   ofPaddle(ball, paddle) {
-    const ballBottom = ball.y + ball.radius;
-    console.log(paddle.y > ballBottom, ballBottom > paddle.y + paddle.height);
     if (Collision.hitObjectBottom(ball, paddle)) {
       return Ball.bounceVertical(ball);
     }

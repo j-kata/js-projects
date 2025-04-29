@@ -1,31 +1,35 @@
 import { Ball } from './ball';
 import { Bounce } from './bounce';
-import { Brick, BRICK_WIDTH, BRICK_HEIGHT, LEVEL } from './brick';
+import { Brick, LEVEL } from './brick';
+import {
+  createBrickRow,
+  initBricks,
+  SPACED_BRICK_WIDTH,
+  moveDownBrickRows,
+} from './bricksConstructor';
+import { Collision } from './collision';
 import { Paddle } from './paddle';
 
+const scoreField = document.getElementById('score');
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 const CANVAS_WIDTH = canvas.width;
 const CANVAS_HEIGHT = canvas.height;
 
-const SPACE = 4;
-
-const SPACED_BRICK_WIDTH = BRICK_WIDTH + SPACE;
-const SPACED_BRICK_HEIGHT = BRICK_HEIGHT + SPACE;
-
 const BRICK_MAX = Math.floor(CANVAS_WIDTH / SPACED_BRICK_WIDTH);
 const OFFSET = (CANVAS_WIDTH - BRICK_MAX * SPACED_BRICK_WIDTH) / 2;
 
-const state = {
+let state = {
   bricks: [],
   paddle: Paddle.create(CANVAS_WIDTH, CANVAS_HEIGHT),
   ball: Ball.create(
     CANVAS_WIDTH / 2,
     CANVAS_HEIGHT / 2,
-    -2 + Math.random() * 2,
-    1
+    -2 + Math.random() * 4,
+    2
   ),
   score: 0,
+  gameOn: false,
 };
 
 let brickRowIntervalId = null;
@@ -36,102 +40,87 @@ const keyUpHandler = handleKey.bind(this, false);
 startGame();
 
 function startGame() {
+  state.gameOn = true;
   state.score = 0;
-  state.bricks = initBricks();
+  state.bricks = initBricks(OFFSET, OFFSET, BRICK_MAX, 4);
   window.addEventListener('keydown', keyDownHandler);
   window.addEventListener('keyup', keyUpHandler);
-  // brickRowIntervalId = setInterval(addTopBrickRow, 1500);
+  brickRowIntervalId = setInterval(addTopBrickRow, 1500);
   requestAnimationFrame(gameLoop);
 }
 
 function stopGame() {
+  state.gameOn = false;
   window.removeEventListener('keydown', keyDownHandler);
   window.removeEventListener('keyup', keyUpHandler);
   clearInterval(brickRowIntervalId);
+  alert('Game over!');
 }
 
 function gameLoop() {
   update();
+  if (!state?.gameOn) return;
+
   draw();
   requestAnimationFrame(gameLoop);
 }
 
 function update() {
+  state = updatePaddle(state);
+  state = updateBall(state);
+}
+
+function updatePaddle(state) {
+  let { paddle } = state;
   if (keysPressed['ArrowLeft']) {
-    state.paddle = Paddle.moveLeft(state.paddle, 0);
+    paddle = Paddle.moveLeft(paddle, 0);
   }
   if (keysPressed['ArrowRight']) {
-    state.paddle = Paddle.moveRight(state.paddle, CANVAS_WIDTH);
+    paddle = Paddle.moveRight(paddle, CANVAS_WIDTH);
   }
-  checkBallCollisions();
-  state.ball = Ball.move(state.ball);
+  return { ...state, paddle };
+}
+
+function updateBall(state) {
+  if (Collision.hitWallBottom(state.ball, CANVAS_HEIGHT)) {
+    stopGame();
+    return;
+  }
+  let { ball, paddle, bricks, score } = state;
+  ball = Ball.move(ball);
+  ball = Bounce.ofWall(ball, CANVAS_WIDTH, CANVAS_HEIGHT);
+  ball = Bounce.ofPaddle(ball, paddle);
+  const { ball: newBall, hit } = Bounce.ofBrick(ball, bricks);
+  if (hit) {
+    bricks = bricks.filter((b) => b !== hit);
+    score += 1;
+  }
+
+  return { ...state, ball: newBall, paddle, bricks, score };
 }
 
 function draw() {
+  if (!state.gameOn) return;
+
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   state.bricks.forEach((brick) => Brick.draw(ctx, brick));
   Ball.draw(ctx, state.ball);
   Paddle.draw(ctx, state.paddle);
-}
-
-function initBricks(rowCount = 4) {
-  let currentY = OFFSET;
-  const bricks = [];
-  for (let row = rowCount; row > 0; row--) {
-    const level = brickRowLevel(row - 1);
-    const topRow = createBrickRow(currentY, level);
-    bricks.push(...topRow);
-    currentY += SPACED_BRICK_HEIGHT;
-  }
-  return bricks;
-}
-
-function brickRowLevel(row) {
-  return row == 0 ? LEVEL.LIGHT : row == 1 ? LEVEL.MIDDLE : LEVEL.STRONG;
-}
-
-function createBrickRow(currentY, level) {
-  const row = [];
-  let currentX = OFFSET;
-  for (let col = 0; col < BRICK_MAX; col++) {
-    row.push(Brick.create({ x: currentX, y: currentY, level }));
-    currentX += SPACED_BRICK_WIDTH;
-  }
-  return row;
+  scoreField.textContent = state.score;
 }
 
 function addTopBrickRow() {
-  if (canAddBrickRow()) {
+  if (state.gameOn && !canAddBrickRow(state.bricks, state.paddle.y)) {
     stopGame();
-    // alert('Game over!');
     return;
   }
-  const topRow = createBrickRow(OFFSET, LEVEL.STRONG);
-  const movedRows = moveDownBrickRow();
+  const topRow = createBrickRow(OFFSET, OFFSET, BRICK_MAX, LEVEL.STRONG);
+  const movedRows = moveDownBrickRows(state.bricks);
   state.bricks = [...topRow, ...movedRows];
 }
 
-function moveDownBrickRow() {
-  return state.bricks.map((brick) =>
-    Brick.moveDown(brick, SPACED_BRICK_HEIGHT)
-  );
-}
-
-function canAddBrickRow() {
-  return state.bricks.find(
-    (b) => b.y + 2 * SPACED_BRICK_HEIGHT > state.paddle.y
-  );
-}
-
-function checkBallCollisions() {
-  let ball = state.ball;
-  ball = Bounce.ofWall(ball, CANVAS_WIDTH, CANVAS_HEIGHT);
-  ball = Bounce.ofPaddle(ball, state.paddle);
-  const { ball: newBall, hit } = Bounce.ofBrick(ball, state.bricks);
-  if (hit) {
-    state.bricks = state.bricks.filter((b) => b !== hit);
-  }
-  state.ball = newBall;
+function canAddBrickRow(bricks, maxY) {
+  return bricks.every((b) => b.y + 2 * b.height < maxY);
 }
 
 function handleKey(pressed, event) {

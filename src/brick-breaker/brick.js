@@ -22,11 +22,11 @@ export const Brick = {
       color: COLORS[level],
     };
   },
+  moveDown(brick, distance = BRICK_HEIGHT) {
+    return { ...brick, y: brick.y + distance };
+  },
   draw(ctx, brick) {
     ctx.fillStyle = brick.color;
     ctx.fillRect(brick.x, brick.y, brick.width, brick.height);
-  },
-  moveDown(brick, distance = BRICK_HEIGHT) {
-    return { ...brick, y: brick.y + distance };
   },
 };
