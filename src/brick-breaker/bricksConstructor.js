@@ -1,9 +1,5 @@
-import { Brick, BRICK_WIDTH, BRICK_HEIGHT, LEVEL } from './brick';
-
-const SPACE = 4;
-
-export const SPACED_BRICK_WIDTH = BRICK_WIDTH + SPACE;
-export const SPACED_BRICK_HEIGHT = BRICK_HEIGHT + SPACE;
+import { Brick } from './brick';
+import { LEVEL, SPACED_BRICK_WIDTH, SPACED_BRICK_HEIGHT } from './constants';
 
 export function initBricks(offsetX, offsetY, rowCount, colCount) {
   let currentY = offsetY;

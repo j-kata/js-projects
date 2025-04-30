@@ -1,9 +1,4 @@
-export const BRICK_WIDTH = 100;
-export const BRICK_HEIGHT = 34;
-
-export const LEVEL = { LIGHT: 0, MIDDLE: 1, STRONG: 2 };
-export const COLORS = { 0: '#3eaf3e', 1: '#546ab2', 2: '#ff5050' };
-
+import { BRICK_WIDTH, BRICK_HEIGHT, LEVEL, COLORS } from './constants';
 export const Brick = {
   create({
     x,
