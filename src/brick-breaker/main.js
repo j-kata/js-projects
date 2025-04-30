@@ -5,7 +5,7 @@ import {
   createBrickRow,
   initBricks,
   SPACED_BRICK_WIDTH,
-  moveDownBrickRows,
+  SPACED_BRICK_HEIGHT,
 } from './bricksConstructor';
 import { Collision } from './collision';
 import { Paddle } from './paddle';
@@ -16,17 +16,19 @@ const ctx = canvas.getContext('2d');
 const CANVAS_WIDTH = canvas.width;
 const CANVAS_HEIGHT = canvas.height;
 
-const BRICK_MAX = Math.floor(CANVAS_WIDTH / SPACED_BRICK_WIDTH);
-const OFFSET = (CANVAS_WIDTH - BRICK_MAX * SPACED_BRICK_WIDTH) / 2;
+const BRICK_INIT_ROWS = 3;
+const BRICK_MAX_COLS = Math.floor(CANVAS_WIDTH / SPACED_BRICK_WIDTH);
+const OFFSET = (CANVAS_WIDTH - BRICK_MAX_COLS * SPACED_BRICK_WIDTH) / 2;
 
 let state = {
   bricks: [],
+  rowsCounter: BRICK_INIT_ROWS,
   paddle: Paddle.create(CANVAS_WIDTH, CANVAS_HEIGHT),
   ball: Ball.create(
     CANVAS_WIDTH / 2,
     CANVAS_HEIGHT / 2,
     -2 + Math.random() * 4,
-    2
+    4
   ),
   score: 0,
   gameOn: false,
@@ -42,10 +44,10 @@ startGame();
 function startGame() {
   state.gameOn = true;
   state.score = 0;
-  state.bricks = initBricks(OFFSET, OFFSET, BRICK_MAX, 4);
+  state.bricks = initBricks(OFFSET, OFFSET, BRICK_INIT_ROWS, BRICK_MAX_COLS);
   window.addEventListener('keydown', keyDownHandler);
   window.addEventListener('keyup', keyUpHandler);
-  brickRowIntervalId = setInterval(addTopBrickRow, 1500);
+  brickRowIntervalId = setInterval(addTopBrickRow, 10000);
   requestAnimationFrame(gameLoop);
 }
 
@@ -92,7 +94,7 @@ function updateBall(state) {
   ball = Bounce.ofPaddle(ball, paddle);
   const { ball: newBall, hit } = Bounce.ofBrick(ball, bricks);
   if (hit) {
-    bricks = bricks.filter((b) => b !== hit);
+    bricks = handleBrickHit(bricks, hit);
     score += 1;
   }
 
@@ -114,13 +116,32 @@ function addTopBrickRow() {
     stopGame();
     return;
   }
-  const topRow = createBrickRow(OFFSET, OFFSET, BRICK_MAX, LEVEL.STRONG);
+  const topRow = createBrickRow(
+    OFFSET,
+    OFFSET,
+    BRICK_MAX_COLS,
+    state.rowsCounter
+  );
   const movedRows = moveDownBrickRows(state.bricks);
   state.bricks = [...topRow, ...movedRows];
+  state.rowsCounter++;
 }
 
 function canAddBrickRow(bricks, maxY) {
   return bricks.every((b) => b.y + 2 * b.height < maxY);
+}
+
+function moveDownBrickRows(bricks) {
+  return bricks.map((brick) => Brick.moveDown(brick, SPACED_BRICK_HEIGHT));
+}
+
+function handleBrickHit(bricks, hitBrick) {
+  const newBrick = Brick.hit(hitBrick);
+  if (newBrick) {
+    return bricks.map((brick) => (brick === hitBrick ? newBrick : brick));
+  } else {
+    return bricks.filter((brick) => brick !== hitBrick);
+  }
 }
 
 function handleKey(pressed, event) {

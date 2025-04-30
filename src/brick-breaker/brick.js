@@ -25,6 +25,14 @@ export const Brick = {
   moveDown(brick, distance = BRICK_HEIGHT) {
     return { ...brick, y: brick.y + distance };
   },
+  hit(brick) {
+    const hitsRemaining = brick.hitsRemaining - 1;
+    if (hitsRemaining > 0) {
+      const level = brick.level - 1;
+      return { ...brick, level, hitsRemaining, color: COLORS[level] };
+    }
+    return null;
+  },
   draw(ctx, brick) {
     ctx.fillStyle = brick.color;
     ctx.fillRect(brick.x, brick.y, brick.width, brick.height);
