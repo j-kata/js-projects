@@ -1,6 +1,7 @@
 import { Ball } from './ball';
 import { Brick } from './brick';
 import { Paddle } from './paddle';
+import { Particle } from './particle';
 
 const scoreField = document.getElementById('score');
 const canvas = document.getElementById('canvas');
@@ -24,4 +25,8 @@ export function drawBall(ball) {
 
 export function drawPaddle(paddle) {
   Paddle.draw(ctx, paddle);
+}
+
+export function drawParticles(particles) {
+  particles.forEach((particle) => Particle.draw(ctx, particle));
 }

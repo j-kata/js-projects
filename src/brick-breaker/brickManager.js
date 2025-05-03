@@ -2,13 +2,14 @@ import { Brick } from './brick';
 import { createBrickRow } from './bricksConstructor';
 import { SPACED_BRICK_HEIGHT } from './constants';
 
-export function handleBrickHit(bricks, hitBrick) {
-  const newBrick = Brick.hit(hitBrick);
-  if (newBrick) {
-    return bricks.map((brick) => (brick === hitBrick ? newBrick : brick));
-  } else {
-    return bricks.filter((brick) => brick !== hitBrick);
-  }
+export function replaceBrick(bricks, brickToReplace, updatedBrick) {
+  return bricks.map((brick) =>
+    brick.id === brickToReplace.id ? updatedBrick : brick
+  );
+}
+
+export function removeBrick(bricks, brickToRemove) {
+  return bricks.filter((brick) => brick.id !== brickToRemove.id);
 }
 
 export function addTopBrickRow(bricks, offset, colMax, rowIndex) {

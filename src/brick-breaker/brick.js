@@ -1,6 +1,7 @@
 import { BRICK_WIDTH, BRICK_HEIGHT, LEVEL, COLORS } from './constants';
 export const Brick = {
   create({
+    id,
     x,
     y,
     width = BRICK_WIDTH,
@@ -8,6 +9,7 @@ export const Brick = {
     level = LEVEL.STRONG,
   }) {
     return {
+      id,
       x,
       y,
       width,
@@ -27,6 +29,12 @@ export const Brick = {
       return { ...brick, level, hitsRemaining, color: COLORS[level] };
     }
     return null;
+  },
+  center(brick) {
+    return {
+      x: brick.x + brick.width / 2,
+      y: brick.y + brick.height / 2,
+    };
   },
   draw(ctx, brick) {
     ctx.fillStyle = brick.color;

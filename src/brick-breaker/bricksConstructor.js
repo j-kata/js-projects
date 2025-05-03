@@ -17,7 +17,14 @@ export function createBrickRow(offsetX, offsetY, colCount, rowNumber) {
   const level = brickRowLevel(rowNumber);
   let currentX = offsetX;
   for (let col = 0; col < colCount; col++) {
-    row.push(Brick.create({ x: currentX, y: offsetY, level }));
+    row.push(
+      Brick.create({
+        id: brickId(rowNumber, colCount, col),
+        x: currentX,
+        y: offsetY,
+        level,
+      })
+    );
     currentX += SPACED_BRICK_WIDTH;
   }
   return row;
@@ -28,4 +35,8 @@ function brickRowLevel(rowNumber) {
   if (row < 2) return LEVEL.LIGHT;
   if (row < 4) return LEVEL.MIDDLE;
   return LEVEL.STRONG;
+}
+
+function brickId(rowNumber, colCount, index) {
+  return (rowNumber + 1) * colCount + index;
 }
