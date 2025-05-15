@@ -1,4 +1,5 @@
 import { Ball } from './ball';
+import { Paddle } from './paddle';
 import { Collision } from './collision';
 
 export const Bounce = {
@@ -14,7 +15,7 @@ export const Bounce = {
   },
   ofPaddle(ball, paddle) {
     if (Collision.hitObjectBottom(ball, paddle)) {
-      return Ball.bounceVertical(ball);
+      return Ball.bounce(ball, Paddle.hitPosition(paddle, ball));
     }
     return ball;
   },

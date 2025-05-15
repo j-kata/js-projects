@@ -16,6 +16,9 @@ export const Paddle = {
       height: PADDLE_HEIGHT,
     };
   },
+  hitPosition(paddle, ball) {
+    return (ball.x - paddle.x) / paddle.width;
+  },
   canMoveLeft(paddle, minX) {
     return paddle.x > minX;
   },
