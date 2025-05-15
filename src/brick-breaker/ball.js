@@ -21,13 +21,15 @@ export const Ball = {
   speed(ball) {
     return Math.sqrt(ball.vx * ball.vx + ball.vy * ball.vy);
   },
+  increaseSpeed(ball, diff = 1.05) {
+    return { ...ball, vx: ball.vx * diff, vy: ball.vy * diff};
+  },
   bounce(ball, hitPos) {
     const angle = lerp(-MAX_ANGLE, MAX_ANGLE, hitPos);
-    //debugger
     const speed = Ball.speed(ball);
     const vx = speed * Math.sin(angle);
-
     const vy = -speed * Math.cos(angle);
+
     return {...ball, vx, vy }
   },
   bounceHorizontal(ball) {

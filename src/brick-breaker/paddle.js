@@ -14,7 +14,11 @@ export const Paddle = {
       y: middleY,
       width: PADDLE_WIDTH,
       height: PADDLE_HEIGHT,
+      step: STEP,
     };
+  },
+  increaseSpeed(paddle, diff = 1.1) {
+    return { ...paddle, step: paddle.step * diff };
   },
   hitPosition(paddle, ball) {
     return (ball.x - paddle.x) / paddle.width;
@@ -29,16 +33,16 @@ export const Paddle = {
     if (!Paddle.canMoveLeft(paddle, canvasMin)) return paddle;
 
     const distance = paddle.x - canvasMin;
-    return { ...paddle, x: paddle.x - Paddle.nextStep(distance) };
+    return { ...paddle, x: paddle.x - Paddle.nextStep(distance, paddle.step) };
   },
   moveRight(paddle, canvasMax) {
     if (!Paddle.canMoveRight(paddle, canvasMax)) return paddle;
 
     const distance = canvasMax - paddle.x - paddle.width;
-    return { ...paddle, x: paddle.x + Paddle.nextStep(distance) };
+    return { ...paddle, x: paddle.x + Paddle.nextStep(distance, paddle.step) };
   },
-  nextStep(distToBorder) {
-    return distToBorder < STEP ? distToBorder : STEP;
+  nextStep(distToBorder, step) {
+    return distToBorder < step ? distToBorder : step;
   },
   draw(ctx, paddle) {
     const { x, y } = paddle;

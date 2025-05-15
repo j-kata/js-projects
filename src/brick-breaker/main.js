@@ -80,11 +80,12 @@ function updateBall(state) {
     stopGame();
     return { ...state, gameOn: false };
   }
-  let { ball, paddle, bricks, particles, score } = state;
+  let { ball, paddle, bricks, particles, score, hit = null } = state;
   ball = Ball.move(ball);
   ball = Bounce.ofWall(ball, WIDTH, HEIGHT);
   ball = Bounce.ofPaddle(ball, paddle);
-  const { ball: newBall, hit } = Bounce.ofBrick(ball, bricks);
+  ({ ball, hit } = Bounce.ofBrick(ball, bricks));
+  
   if (hit) {
     const updatedBrick = Brick.hit(hit);
     if (updatedBrick) {
@@ -93,10 +94,14 @@ function updateBall(state) {
       bricks = removeBrick(bricks, hit);
       particles = [...particles, ...createExplosion(Brick.center(hit))];
       score += 1;
+      if (score % 5 == 0) {
+        ball = Ball.increaseSpeed(ball)
+        paddle = Paddle.increaseSpeed(paddle)
+      }
     }
   }
 
-  return { ...state, ball: newBall, paddle, bricks, particles, score };
+  return { ...state, ball, paddle, bricks, particles, score };
 }
 
 function updateBricks() {
@@ -137,7 +142,7 @@ function initState() {
     bricks: initBricks(OFFSET, OFFSET, ROWS_INIT, BRICKS_MAX),
     rowsCounter: ROWS_INIT,
     paddle: Paddle.create(WIDTH, HEIGHT),
-    ball: Ball.create(WIDTH / 2, HEIGHT / 2, -2 + Math.random() * 4, 4),
+    ball: Ball.create(WIDTH / 2, HEIGHT / 2, -1 + Math.random() * 2, 4),
     particles: [],
     score: 0,
     gameOn: true,
