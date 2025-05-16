@@ -22,21 +22,32 @@ export const Ball = {
     return Math.sqrt(ball.vx * ball.vx + ball.vy * ball.vy);
   },
   increaseSpeed(ball, diff = 1.05) {
-    return { ...ball, vx: ball.vx * diff, vy: ball.vy * diff};
+    return { ...ball, vx: ball.vx * diff, vy: ball.vy * diff };
   },
-  bounce(ball, hitPos) {
+  offsetByDirection(ball, direction, pos) {
+    return direction > 0 ? pos + ball.radius : pos - ball.radius;
+  },
+  bounceXWithAngle(ball, direction, pos, hitPos) {
     const angle = lerp(-MAX_ANGLE, MAX_ANGLE, hitPos);
     const speed = Ball.speed(ball);
     const vx = speed * Math.sin(angle);
     const vy = -speed * Math.cos(angle);
 
-    return {...ball, vx, vy }
+    return { ...ball, y: Ball.offsetByDirection(ball, direction, pos), vx, vy };
   },
-  bounceHorizontal(ball) {
-    return { ...ball, vx: -ball.vx };
+  bounceX(ball, direction, pos) {
+    return {
+      ...ball,
+      x: Ball.offsetByDirection(ball, direction, pos),
+      vx: -ball.vx,
+    };
   },
-  bounceVertical(ball) {
-    return { ...ball, vy: -ball.vy };
+  bounceY(ball, direction, pos) {
+    return {
+      ...ball,
+      y: Ball.offsetByDirection(ball, direction, pos),
+      vy: -ball.vy,
+    };
   },
   draw(ctx, ball) {
     const { x, y, radius } = ball;
@@ -50,4 +61,3 @@ export const Ball = {
     ctx.restore();
   },
 };
-

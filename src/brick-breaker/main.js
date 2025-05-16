@@ -85,7 +85,7 @@ function updateBall(state) {
   ball = Bounce.ofWall(ball, WIDTH, HEIGHT);
   ball = Bounce.ofPaddle(ball, paddle);
   ({ ball, hit } = Bounce.ofBrick(ball, bricks));
-  
+
   if (hit) {
     const updatedBrick = Brick.hit(hit);
     if (updatedBrick) {
@@ -95,8 +95,8 @@ function updateBall(state) {
       particles = [...particles, ...createExplosion(Brick.center(hit))];
       score += 1;
       if (score % 5 == 0) {
-        ball = Ball.increaseSpeed(ball)
-        paddle = Paddle.increaseSpeed(paddle)
+        ball = Ball.increaseSpeed(ball);
+        paddle = Paddle.increaseSpeed(paddle);
       }
     }
   }
