@@ -1,6 +1,5 @@
-const BALL_RADIUS = 15;
-const STROKE_COLOR = '#ccc';
-const FILL_COLOR = '#345235';
+const BALL_RADIUS = 7;
+const COLOR = '#ffd54f';
 const MAX_ANGLE = Math.PI / 3;
 
 const lerp = (a, b, t) => a + (b - a) * t;
@@ -52,11 +51,9 @@ export const Ball = {
   draw(ctx, ball) {
     const { x, y, radius } = ball;
     ctx.save();
-    ctx.strokeStyle = STROKE_COLOR;
-    ctx.fillStyle = FILL_COLOR;
+    ctx.fillStyle = COLOR;
     ctx.beginPath();
     ctx.arc(x, y, radius, 0, Math.PI * 2);
-    ctx.stroke();
     ctx.fill();
     ctx.restore();
   },

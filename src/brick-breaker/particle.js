@@ -1,4 +1,4 @@
-const COLORS = ['#ffc100', '#ff9a00', '#ff7400', '#ff4d00', '#ff0000'];
+const COLORS = ['#fff176', '#ff7043'];
 const FADE_RATE = 0.025;
 
 export const Particle = {

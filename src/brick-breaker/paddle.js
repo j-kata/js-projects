@@ -1,7 +1,6 @@
-const PADDLE_WIDTH = 140;
-const PADDLE_HEIGHT = 35;
-const STROKE_COLOR = '#000';
-const FILL_COLOR = '#dadada';
+const PADDLE_WIDTH = 90;
+const PADDLE_HEIGHT = 14;
+const COLOR = '#29b6f6';
 const RADIUS = 40;
 const STEP = 5;
 
@@ -47,12 +46,10 @@ export const Paddle = {
   draw(ctx, paddle) {
     const { x, y } = paddle;
     ctx.save();
-    ctx.strokeStyle = STROKE_COLOR;
-    ctx.fillStyle = FILL_COLOR;
+    ctx.fillStyle = COLOR;
     ctx.beginPath();
     ctx.roundRect(x, y, paddle.width, paddle.height, [RADIUS]);
     ctx.fill();
-    ctx.stroke();
     ctx.restore();
   },
 };
