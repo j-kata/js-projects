@@ -1,27 +1,36 @@
+import { lerp } from './utils';
+
 const BALL_RADIUS = 7;
 const COLOR = '#ffd54f';
 const MAX_ANGLE = Math.PI / 3;
-
-const lerp = (a, b, t) => a + (b - a) * t;
+const VY = 180;
+const MAX_SPEED = 600;
 
 export const Ball = {
-  create(x, y, vx, vy, radius = BALL_RADIUS) {
+  create(x, y, radius = BALL_RADIUS) {
     return {
       x,
       y,
-      vx,
-      vy,
+      vx: -100 + Math.random() * 200,
+      vy: VY,
       radius,
     };
   },
-  move(ball) {
-    return { ...ball, x: ball.x + ball.vx, y: ball.y + ball.vy };
+  move(ball, deltaTime) {
+    return {
+      ...ball,
+      x: ball.x + ball.vx * deltaTime,
+      y: ball.y + ball.vy * deltaTime,
+    };
   },
   speed(ball) {
     return Math.sqrt(ball.vx * ball.vx + ball.vy * ball.vy);
   },
-  increaseSpeed(ball, diff = 1.05) {
-    return { ...ball, vx: ball.vx * diff, vy: ball.vy * diff };
+  increaseSpeed(ball, diff = 1.25) {
+    const newVx = Math.min(ball.vx * diff, MAX_SPEED);
+    const newVy = Math.min(ball.vy * diff, MAX_SPEED);
+
+    return { ...ball, vx: newVx, vy: newVy };
   },
   offsetByDirection(ball, direction, pos) {
     return direction > 0 ? pos + ball.radius : pos - ball.radius;

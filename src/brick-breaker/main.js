@@ -29,8 +29,10 @@ import { Particle } from './particle';
 import { Brick } from './brick';
 import { createExplosion } from './explosion';
 
+const BRICK_UPDATE_SPEED = 10000;
 let brickRowIntervalId = null;
 let state = {};
+let lastTime = null;
 
 startGame();
 
@@ -38,7 +40,8 @@ function startGame() {
   state = initState();
   window.addEventListener('keydown', handleKeyDown);
   window.addEventListener('keyup', handleKeyUp);
-  brickRowIntervalId = setInterval(updateBricks, 10000);
+  brickRowIntervalId = setInterval(updateBricks, BRICK_UPDATE_SPEED);
+  lastTime = performance.now();
   requestAnimationFrame(gameLoop);
 }
 
@@ -49,39 +52,40 @@ function stopGame() {
   alert('Game over!');
 }
 
-function gameLoop() {
-  state = update(state);
+function gameLoop(currentTime) {
+  const deltaTime = (currentTime - lastTime) / 1000;
+  lastTime = currentTime;
+
+  state = update(state, deltaTime);
   if (!state.gameOn) return;
 
   draw(state);
   requestAnimationFrame(gameLoop);
 }
 
-function update(state) {
-  let newState = updatePaddle(state);
-  newState = updateBall(newState);
+function update(state, deltaTime) {
+  let newState = updatePaddle(state, deltaTime);
+  newState = updateBall(newState, deltaTime);
   newState = updateParticles(newState);
   return newState;
 }
 
-function updatePaddle(state) {
+function updatePaddle(state, deltaTime) {
   let { paddle } = state;
-  if (leftArrowPressed()) {
-    paddle = Paddle.moveLeft(paddle, 0);
-  }
-  if (rightArrowPressed()) {
-    paddle = Paddle.moveRight(paddle, WIDTH);
-  }
+  let direction = leftArrowPressed() ? -1 : rightArrowPressed() ? 1 : 0;
+
+  if (direction) paddle = Paddle.move(paddle, 0, WIDTH, direction, deltaTime);
+
   return { ...state, paddle };
 }
 
-function updateBall(state) {
+function updateBall(state, deltaTime) {
   if (Collision.hitWallBottom(state.ball, HEIGHT)) {
     stopGame();
     return { ...state, gameOn: false };
   }
   let { ball, paddle, bricks, particles, score, hit = null } = state;
-  ball = Ball.move(ball);
+  ball = Ball.move(ball, deltaTime);
   ball = Bounce.ofWall(ball, WIDTH, HEIGHT);
   ball = Bounce.ofPaddle(ball, paddle);
   ({ ball, hit } = Bounce.ofBrick(ball, bricks));
@@ -94,13 +98,10 @@ function updateBall(state) {
       bricks = removeBrick(bricks, hit);
       particles = [...particles, ...createExplosion(Brick.center(hit))];
       score += 1;
-      if (score % 5 == 0) {
-        ball = Ball.increaseSpeed(ball);
-        paddle = Paddle.increaseSpeed(paddle);
-      }
+      if (score % 5 == 0) ball = Ball.increaseSpeed(ball);
     }
   }
-
+  paddle = Paddle.syncSpeedWithBall(paddle, Ball.speed(ball));
   return { ...state, ball, paddle, bricks, particles, score };
 }
 
@@ -142,7 +143,7 @@ function initState() {
     bricks: initBricks(OFFSET, OFFSET, ROWS_INIT, BRICKS_MAX),
     rowsCounter: ROWS_INIT,
     paddle: Paddle.create(WIDTH, HEIGHT),
-    ball: Ball.create(WIDTH / 2, HEIGHT / 2, -1 + Math.random() * 2, 4),
+    ball: Ball.create(WIDTH / 2, HEIGHT / 2),
     particles: [],
     score: 0,
     gameOn: true,

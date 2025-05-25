@@ -1,3 +1,5 @@
+import { clamp } from './utils';
+
 export const Collision = {
   hitWallLeft(ball, wallX) {
     return ball.x - ball.radius < wallX;
@@ -37,5 +39,3 @@ export const Collision = {
     return Collision.intersectObjectSide(ball, closestX, closestY);
   },
 };
-
-const clamp = (num, val1, val2) => Math.min(Math.max(num, val1), val2);

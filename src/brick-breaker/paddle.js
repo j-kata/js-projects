@@ -1,8 +1,11 @@
+import { clamp } from './utils';
+
 const PADDLE_WIDTH = 90;
 const PADDLE_HEIGHT = 14;
 const COLOR = '#29b6f6';
 const RADIUS = 40;
-const STEP = 5;
+const SPEED = 300;
+const MAX_SPEED = 450;
 
 export const Paddle = {
   create(canvasWidth, canvasHeight) {
@@ -13,35 +16,22 @@ export const Paddle = {
       y: middleY,
       width: PADDLE_WIDTH,
       height: PADDLE_HEIGHT,
-      step: STEP,
+      speed: SPEED,
     };
   },
-  increaseSpeed(paddle, diff = 1.1) {
-    return { ...paddle, step: paddle.step * diff };
+  syncSpeedWithBall(paddle, ballSpeed) {
+    const newSpeed = Math.min(ballSpeed * 1.2, MAX_SPEED);
+    return { ...paddle, speed: newSpeed };
   },
   hitPosition(paddle, ball) {
     return (ball.x - paddle.x) / paddle.width;
   },
-  canMoveLeft(paddle, minX) {
-    return paddle.x > minX;
-  },
-  canMoveRight(paddle, maxX) {
-    return paddle.x + paddle.width < maxX;
-  },
-  moveLeft(paddle, canvasMin) {
-    if (!Paddle.canMoveLeft(paddle, canvasMin)) return paddle;
+  move(paddle, min, max, direction, deltaTime) {
+    const newSpeed = direction * paddle.speed * deltaTime;
+    const calcX = paddle.x + newSpeed;
+    const newX = clamp(min, calcX, max - paddle.width);
 
-    const distance = paddle.x - canvasMin;
-    return { ...paddle, x: paddle.x - Paddle.nextStep(distance, paddle.step) };
-  },
-  moveRight(paddle, canvasMax) {
-    if (!Paddle.canMoveRight(paddle, canvasMax)) return paddle;
-
-    const distance = canvasMax - paddle.x - paddle.width;
-    return { ...paddle, x: paddle.x + Paddle.nextStep(distance, paddle.step) };
-  },
-  nextStep(distToBorder, step) {
-    return distToBorder < step ? distToBorder : step;
+    return { ...paddle, x: newX };
   },
   draw(ctx, paddle) {
     const { x, y } = paddle;
