@@ -34,7 +34,14 @@ let brickRowIntervalId = null;
 let state = {};
 let lastTime = null;
 
-startGame();
+document.addEventListener('DOMContentLoaded', function () {
+  const backdrop = document.getElementById('backdrop');
+  const startButton = document.getElementById('start');
+  startButton.addEventListener('click', function () {
+    backdrop.classList.add('!hidden');
+    startGame();
+  });
+});
 
 function startGame() {
   state = initState();
@@ -49,7 +56,7 @@ function stopGame() {
   window.removeEventListener('keydown', handleKeyDown);
   window.removeEventListener('keyup', handleKeyUp);
   clearInterval(brickRowIntervalId);
-  alert('Game over!');
+  document.getElementById('backdrop').classList.remove('!hidden');
 }
 
 function gameLoop(currentTime) {
