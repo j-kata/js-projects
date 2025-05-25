@@ -5,6 +5,7 @@ import { Bounce } from './bounce';
 import { initBricks } from './bricksConstructor';
 import { Collision } from './collision';
 import {
+  clearKeyPressedState,
   handleKeyDown,
   handleKeyUp,
   leftArrowPressed,
@@ -56,6 +57,7 @@ function stopGame() {
   window.removeEventListener('keydown', handleKeyDown);
   window.removeEventListener('keyup', handleKeyUp);
   clearInterval(brickRowIntervalId);
+  clearKeyPressedState();
   document.getElementById('backdrop').classList.remove('!hidden');
 }
 

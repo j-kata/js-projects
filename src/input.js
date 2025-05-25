@@ -7,6 +7,10 @@ function handleKey(pressed, event) {
   keysPressed[event.code] = pressed;
 }
 
+export function clearKeyPressedState() {
+  acceptedCodes.forEach((code) => (keysPressed[code] = false));
+}
+
 export const handleKeyDown = (event) => handleKey(true, event);
 export const handleKeyUp = (event) => handleKey(false, event);
 export const leftArrowPressed = () => keysPressed['ArrowLeft'];
